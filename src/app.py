@@ -1,17 +1,10 @@
-import RPi.GPIO as GPIO
-import time
 import os
 import sys
-from argparse import ArgumentParser
-
-from flask import Flask, request, abort
-
 from linebot import(LineBotApi, WebhookHandler)
 from linebot.exceptions import(InvalidSignatureError)
 from linebot.models import(MessageEvent, TextMessage, TextSendMessage)
-
-app = Flask(__name__)
-
+from argparse import ArgumentParser
+from flask import Flask, request, abort
 
 channel_secret = os.getenv('LINE_CHANNEL_SECRET', None)
 channel_access_token = os.getenv('LINE_CHANNEL_ACCESS_TOKEN', None)
@@ -25,6 +18,14 @@ if channel_access_token is None:
 line_bot_api = LineBotApi(channel_access_token)
 handler = WebhookHandler(channel_secret)
 
+app = Flask(__name__)
+if __name__ == "__main__":
+    arg_parser = ArgumentParser(usage = 'Usage: python ' + __file__ + '[--port][--help]')
+    arg_parser.add_argument('-p', '--port', default = 8000, help = 'port')
+    arg_parser.add_argument('-d', '--debug', default = False, help = 'debug')
+    options = arg_parser.parse_args()
+    
+    app.run(debug = options.debug, port = options.port)
 
 @app.route("/callback", methods=['POST'])
 def callback():
@@ -77,27 +78,3 @@ def message_text(event):
                 '''え、なんて？？ 水やりしたいん？'''
             )
         )
-
-if __name__ == "__main__":
-    arg_parser = ArgumentParser(usage = 'Usage: python ' + __file__ + '[--port][--help]')
-    arg_parser.add_argument('-p', '--port', default = 8000, help = 'port')
-    arg_parser.add_argument('-d', '--debug', default = False, help = 'debug')
-    options = arg_parser.parse_args()
-    
-    app.run(debug = options.debug, port = options.port)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-    
