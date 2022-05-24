@@ -1,10 +1,10 @@
-import RPI.GPIO as GPIO
+import RPi.GPIO as GPIO
 import time
 import datetime as dt
 import board
 import busio
 import adafruit_ads1x15.ads1115 as ADS
-from adafruit_ads1x15.analog_in import Analogin
+from adafruit_ads1x15.analog_in import AnalogIn
 
 PUMP_RELAY_PIN = 17 
 PLANT_1_VALVE_RELAY_PIN= 18 
@@ -22,11 +22,11 @@ try:
     i2c      = busio.I2C(board.SCL, board.SDA)
     ads      = ADS.ADS1115(i2c)
     ads.gain = 2 / 3
-    chan     = Analogin(ads, ADS.PO)
+    chan     = AnalogIn(ads, ADS.P0)
 
     SAMPLINGTIME  = 0.01 #[s]
-    MAX_VOLTAGE   = 4.5 #[v](flow-sensor's spec)
-    MAX_FLOW_RATE = 100 #[ml/s] (flow-sensor's spec)
+    MAX_VOLTAGE   = 5.0  #[v](flow-sensor's spec)
+    MAX_FLOW_RATE = 100  #[ml/s] (flow-sensor's spec)
 
     PLANT_1_DAY_OF_INTERVAL = 7   #[day]
     PLANT_2_DAY_OF_INTERVAL = 10  #[day]
