@@ -106,7 +106,7 @@ def handle_postback(event):
         )
         template_message = TemplateSendMessage(alt_text = '「今すぐ水やり」を行います。', template = buttons_template)
         line_bot_api.reply_message(event.reply_token, template_message)
-    elif data == 'watering':
+    elif data == 'setting':
         buttons_template = ButtonsTemplate(
             title = '「定期水やり設定」を行います。',
             text = 'どちらの植物の設定をしますか？',
