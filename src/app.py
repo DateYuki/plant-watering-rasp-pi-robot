@@ -149,7 +149,7 @@ def handle_postback(event):
                 TextSendMessage('水やりをしています・・・'),
             ]
         )
-        plant_water_server.plant1Watering()
+        plant_water_server.plant2Watering()
         line_bot_api.push_message(
             user_id, [
                 TextSendMessage(f'水やりが終了しました。次の水やりは{plant_water_server.plant_2_day_of_interval}日後です。'),
