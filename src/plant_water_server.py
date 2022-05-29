@@ -63,7 +63,7 @@ class PlantWaterServer:
     
     def getDateTimeOfNextPlant1Watering(self):
         now = dt.datetime.now()
-        nextDateTimeOfNextPlantWatering
+        nextDateTimeOfNextPlantWatering = ''
         if (now.hour < 10):
             nextDateTimeOfNextPlantWatering = dt.datetime(now.year, now.month, now.day + self.plant_1_day_of_interval - self.plant_1_day_count_since_last_watering - 1)
         else:
@@ -72,7 +72,7 @@ class PlantWaterServer:
     
     def getDateTimeOfNextPlant2Watering(self):
         now = dt.datetime.now()
-        nextDateTimeOfNextPlantWatering
+        nextDateTimeOfNextPlantWatering = ''
         if (now.hour < 10):
             nextDateTimeOfNextPlantWatering = dt.datetime(now.year, now.month, now.day + self.plant_2_day_of_interval - self.plant_2_day_count_since_last_watering - 1)
         else:
