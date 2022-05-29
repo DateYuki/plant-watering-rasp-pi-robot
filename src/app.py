@@ -129,7 +129,6 @@ def handle_postback(event):
             title = '「エバーフレッシュの定期水やり設定-間隔」を行います。',
             text = f'現在の設定は【{plant_water_server.plant_1_day_of_interval}日ごと】です。\n以下の内容から新しい設定を選択してください。',
             actions = [
-                PostbackAction(label = '3日ごと', data = 'plant_1_setting_pace_value-3'),
                 PostbackAction(label = '5日ごと', data = 'plant_1_setting_pace_value-5'),
                 PostbackAction(label = '7日ごと', data = 'plant_1_setting_pace_value-7'),
                 PostbackAction(label = '14日ごと', data = 'plant_1_setting_pace_value-14'),
@@ -160,7 +159,6 @@ def handle_postback(event):
             actions = [
                 PostbackAction(label = '100ml', data = 'plant_1_setting_quantity_value-100'),
                 PostbackAction(label = '200ml', data = 'plant_1_setting_quantity_value-200'),
-                PostbackAction(label = '300ml', data = 'plant_1_setting_quantity_value-300'),
                 PostbackAction(label = '400ml', data = 'plant_1_setting_quantity_value-400'),
                 PostbackAction(label = 'キャンセル', data = 'cancel'),
             ],
@@ -199,7 +197,6 @@ def handle_postback(event):
             title = '「パキラの定期水やり設定-間隔」を行います。',
             text = f'現在の設定は【{plant_water_server.plant_2_day_of_interval}日ごと】です。\n以下の内容から新しい設定を選択してください。',
             actions = [
-                PostbackAction(label = '3日ごと', data = 'plant_2_setting_pace_value-3'),
                 PostbackAction(label = '5日ごと', data = 'plant_2_setting_pace_value-5'),
                 PostbackAction(label = '7日ごと', data = 'plant_2_setting_pace_value-7'),
                 PostbackAction(label = '14日ごと', data = 'plant_2_setting_pace_value-14'),
@@ -230,7 +227,6 @@ def handle_postback(event):
             actions = [
                 PostbackAction(label = '100ml', data = 'plant_2_setting_quantity_value-100'),
                 PostbackAction(label = '200ml', data = 'plant_2_setting_quantity_value-200'),
-                PostbackAction(label = '300ml', data = 'plant_2_setting_quantity_value-300'),
                 PostbackAction(label = '400ml', data = 'plant_2_setting_quantity_value-400'),
                 PostbackAction(label = 'キャンセル', data = 'cancel'),
             ],
