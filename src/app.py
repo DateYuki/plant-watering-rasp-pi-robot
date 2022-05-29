@@ -67,12 +67,6 @@ def message_text(event):
         template_message = TemplateSendMessage(alt_text = '「定期水やり設定」を行います。', template = buttons_template)
         line_bot_api.reply_message(event.reply_token, template_message)
     else:
-        line_bot_api.reply_message(
-            event.reply_token,
-            TextSendMessage(
-                '''よくわかりません。\n「今すぐ水やり」と「定期水やり設定」を行うことができます。'''
-            )
-        )
         buttons_template = ButtonsTemplate(
             title = 'よく分かりません。',
             text = '御用はなんですか？',
