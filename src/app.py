@@ -73,12 +73,57 @@ def message_text(event):
                 '''よくわかりません。\n「今すぐ水やり」と「定期水やり設定」を行うことができます。'''
             )
         )
+        buttons_template = ButtonsTemplate(
+            title = 'よく分かりません。',
+            text = '御用はなんですか？',
+            actions = [
+                PostbackAction(label = '今すぐ水やり', data = 'watering'),
+                PostbackAction(label = '定期水やり設定', data = 'setting'),
+                PostbackAction(label = '次の水やり確認', data = 'check_schedule'),
+                PostbackAction(label = 'キャンセル', data = 'cancel'),
+            ],
+        )
+        template_message = TemplateSendMessage(alt_text = '御用はなんですか？', template = buttons_template)
+        line_bot_api.reply_message(event.reply_token, template_message)
 
 @handler.add(PostbackEvent)
 def handle_postback(event):
     data = event.postback.data
     user_id = event.source.user_id
-    if data == 'plant_1_watering':
+    if data == 'watering':
+        buttons_template = ButtonsTemplate(
+            title = '「今すぐ水やり」を行います。',
+            text = 'どちらの植物に水やりしますか？',
+            actions = [
+                PostbackAction(label = 'エバーフレッシュ', data = 'plant_1_watering'),
+                PostbackAction(label = 'パキラ', data = 'plant_2_watering'),
+                PostbackAction(label = 'キャンセル', data = 'cancel'),
+            ],
+        )
+        template_message = TemplateSendMessage(alt_text = '「今すぐ水やり」を行います。', template = buttons_template)
+        line_bot_api.reply_message(event.reply_token, template_message)
+    elif data == 'watering':
+        buttons_template = ButtonsTemplate(
+            title = '「定期水やり設定」を行います。',
+            text = 'どちらの植物の設定をしますか？',
+            actions = [
+                PostbackAction(label = 'エバーフレッシュ', data = 'plant_1_setting'),
+                PostbackAction(label = 'パキラ', data = 'plant_2_setting'),
+                PostbackAction(label = '設定確認', data = 'check_setting'),
+                PostbackAction(label = 'キャンセル', data = 'cancel'),
+            ],
+        )
+        template_message = TemplateSendMessage(alt_text = '「定期水やり設定」を行います。', template = buttons_template)
+        line_bot_api.reply_message(event.reply_token, template_message)
+    elif data == 'check_schedule':
+        line_bot_api.reply_message(
+            event.reply_token, [
+                TextSendMessage('次の定期水やりを確認しています・・・'),
+                TextSendMessage(f'次のエバーフレッシュへの水やりは【{plant_water_server.getDateTimeOfNextPlant1Watering()}】です。'),
+                TextSendMessage(f'次のパキラへの水やりは【{plant_water_server.getDateTimeOfNextPlant1Watering()}】です。'),
+            ]
+        )
+    elif data == 'plant_1_watering':
         line_bot_api.reply_message(
             event.reply_token, [
                 TextSendMessage('エバーフレッシュに水やりをします。'),
