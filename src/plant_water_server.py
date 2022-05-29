@@ -108,12 +108,12 @@ class PlantWaterServer:
                 if self.plant_1_day_of_interval <= self.plant_1_day_count_since_last_watering:
                     self.plant1Watering()
                 else:
-                    plant1DayOfIntervalCount += 1
+                    self.plant_1_day_count_since_last_watering += 1
                 #-------- Plant-2 --------
                 if self.plant_2_day_of_interval <= self.plant_2_day_count_since_last_watering:
                     self.plant2Watering()
                 else:
-                    plant2DayOfIntervalCount += 1
+                    self.plant_2_day_count_since_last_watering += 1
                 #-------- wait to next day at 10:00 AM --------
                 now = dt.datetime.now()
                 nextDateTime = dt.datetime(now.year, now.month, now.day, 10)
