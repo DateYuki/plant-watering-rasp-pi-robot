@@ -3,7 +3,8 @@ import sys
 import threading
 from linebot import(LineBotApi, WebhookHandler)
 from linebot.exceptions import(InvalidSignatureError)
-from linebot.models import(MessageEvent, TextMessage, TextSendMessage)
+from linebot.models import(MessageEvent, TextMessage, TextSendMessage,
+ButtonsTemplate, PostbackAction, TemplateSendMessage, PostbackEvent)
 from argparse import ArgumentParser
 from flask import Flask, request, abort
 from plant_water_server import PlantWaterServer
@@ -19,6 +20,7 @@ if channel_access_token is None:
 
 line_bot_api = LineBotApi(channel_access_token)
 handler = WebhookHandler(channel_secret)
+user_id = ''
 
 plant_water_server = PlantWaterServer()
 
@@ -29,74 +31,229 @@ def callback():
     signature = request.headers['X-Line-Signature']
     body = request.get_data(as_text = True)
     app.logger.info("Request body:" + body)
-    
     try:
         handler.handle(body, signature)
     except InvalidSignatureError:
         abort(400)
-        
     return 'OK'
 
 @handler.add(MessageEvent, message=TextMessage)
 def message_text(event):
     text = event.message.text
-    
-    if text.find('エバーフレッシュ') != -1:
-        line_bot_api.reply_message(
-            event.reply_token,
-            TextSendMessage(
-                'エバーフレッシュに水やりをします。'
-            )
+    user_id = event.source.user_id
+    if (text.find('今') != -1 or text.find('いま') != -1) or (text.find('水') != -1 or text.find('みず') != -1):
+        buttons_template = ButtonsTemplate(
+            title = '「今すぐ水やり」を行います。',
+            text = 'どちらの植物に水やりしますか？',
+            actions = [
+                PostbackAction(label = 'エバーフレッシュ', text = 'plant_1_watering'),
+                PostbackAction(label = 'パキラ', text = 'plant_2_watering'),
+                PostbackAction(label = 'キャンセル', text = 'cancel'),
+            ],
         )
-        line_bot_api.reply_message(
-            event.reply_token,
-            TextSendMessage(
-                '水やりをしています・・・'
-            )
+        template_message = TemplateSendMessage(template = buttons_template)
+        line_bot_api.reply_message(event.reply_token, template_message)
+    elif (text.find('定期') != -1 or text.find('ていき') != -1) or (text.find('設定') != -1 or text.find('せってい') != -1):
+        buttons_template = ButtonsTemplate(
+            title = '「定期水やり設定」を行います。',
+            text = 'どちらの植物の設定をしますか？',
+            actions = [
+                PostbackAction(label = 'エバーフレッシュ', text = 'plant_1_setting'),
+                PostbackAction(label = 'パキラ', text = 'plant_2_setting'),
+                PostbackAction(label = '設定確認', text = 'check_setting'),
+                PostbackAction(label = 'キャンセル', text = 'cancel'),
+            ],
         )
-        plant_water_server.plant1Watering()
-        line_bot_api.reply_message(
-            event.reply_token,
-            TextSendMessage(
-                'エバーフレッシュへの水やりが終わりました。'
-            )
-        )
-        
-    elif text.find('パキラ') != -1:
-        line_bot_api.reply_message(
-            event.reply_token,
-            TextSendMessage(
-                'パキラに水やりをします。\n\nこれから10日ごとに水やりします。'
-            )
-        )
-        line_bot_api.reply_message(
-            event.reply_token,
-            TextSendMessage(
-                '水やりをしています・・・'
-            )
-        )
-        plant_water_server.plant2Watering()
-        line_bot_api.reply_message(
-            event.reply_token,
-            TextSendMessage(
-                'パキラへの水やりが終わりました。'
-            )
-        )
-        
-    elif text.find('水') != -1 or text.find('みず') != -1:
-        line_bot_api.reply_message(
-            event.reply_token,
-            TextSendMessage(
-                'どちらの植物に水やりしますか？\n  「エバーフレッシュ」\n  「パキラ」'
-            )
-        )
-        
+        template_message = TemplateSendMessage(template = buttons_template)
+        line_bot_api.reply_message(event.reply_token, template_message)
     else:
         line_bot_api.reply_message(
             event.reply_token,
             TextSendMessage(
-                '''よくわかりません。\n「水やり」と「設定」を行うことができます。'''
+                '''よくわかりません。\n「今すぐ水やり」と「定期水やり設定」を行うことができます。'''
             )
+        )
+
+@handler.add(PostbackEvent)
+def handle_postback(event):
+    text = event.postback.text
+    data = event.postback.data
+    user_id = event.source.user_id
+    if text == 'plant_1_watering':
+        line_bot_api.reply_message(
+            event.reply_token, [
+                TextSendMessage('エバーフレッシュに水やりをします。'),
+                TextSendMessage('水やりをしています・・・'),
+            ]
+        )
+        plant_water_server.plant1Watering()
+        line_bot_api.push_message(
+            user_id, [
+                TextSendMessage(f'水やりが終了しました。次の水やりは{plant_water_server.plant_1_day_of_interval}日後です。'),
+            ]
+        )
+    elif text == 'plant_2_watering':
+        line_bot_api.reply_message(
+            event.reply_token, [
+                TextSendMessage('パキラに水やりをします。'),
+                TextSendMessage('水やりをしています・・・'),
+            ]
+        )
+        plant_water_server.plant1Watering()
+        line_bot_api.push_message(
+            user_id, [
+                TextSendMessage(f'水やりが終了しました。次の水やりは{plant_water_server.plant_2_day_of_interval}日後です。'),
+            ]
+        )
+    elif text == 'check_setting':
+        line_bot_api.reply_message(
+            event.reply_token, [
+                TextSendMessage('現在の設定を確認しています・・・'),
+                TextSendMessage(f'エバーフレッシュへの定期水やり設定は【{plant_water_server.plant_1_day_of_interval}日ごと】に【{plant_water_server.plant_1_water_quantity}ml】です'),
+                TextSendMessage(f'パキラへの定期水やり設定は【{plant_water_server.plant_2_day_of_interval}日ごと】に【{plant_water_server.plant_2_water_quantity}ml】です'),
+            ]
+        )
+    elif text == 'plant_1_setting':
+        buttons_template = ButtonsTemplate(
+            title = '「エバーフレッシュの定期水やり設定」を行います。',
+            text = 'どの設定を変更しますか？',
+            actions = [
+                PostbackAction(label = '間隔', text = 'plant_1_setting_pace'),
+                PostbackAction(label = '水量', text = 'plant_1_setting_quantity'),
+                PostbackAction(label = 'キャンセル', text = 'cancel'),
+            ],
+        )
+        template_message = TemplateSendMessage(template = buttons_template)
+        line_bot_api.reply_message(event.reply_token, template_message)
+    elif text == 'plant_1_setting_pace':
+        buttons_template = ButtonsTemplate(
+            title = '「エバーフレッシュの定期水やり設定-間隔」を行います。',
+            text = f'現在の設定は【{plant_water_server.plant_1_day_of_interval}日ごと】です。\n以下の内容から新しい設定を選択してください。',
+            actions = [
+                PostbackAction(label = '3日ごと', data = 'plant_1_setting_pace_value', data = 3),
+                PostbackAction(label = '5日ごと', data = 'plant_1_setting_pace_value', data = 5),
+                PostbackAction(label = '7日ごと', data = 'plant_1_setting_pace_value', data = 7),
+                PostbackAction(label = '14日ごと', data = 'plant_1_setting_pace_value', data = 14),
+                PostbackAction(label = 'キャンセル', data = 'cancel'),
+            ],
+        )
+        template_message = TemplateSendMessage(template = buttons_template)
+        line_bot_api.reply_message(event.reply_token, template_message)
+    elif text == 'plant_1_setting_pace_value':
+        is_change = plant_water_server.updatePlant1Setting(data, plant_water_server.plant_1_water_quantity)
+        if (is_change):
+            line_bot_api.reply_message(
+                event.reply_token, [
+                    TextSendMessage('設定を変更しました。'),
+                ]
+            )
+        else:
+            line_bot_api.reply_message(
+                event.reply_token, [
+                    TextSendMessage('設定を変更できませんでした。'),
+                ]
+            )
+    elif text == 'plant_1_setting_quantity':
+        buttons_template = ButtonsTemplate(
+            title = '「エバーフレッシュの定期水やり設定-水量」を行います。',
+            text = f'現在の設定は【{plant_water_server.plant_1_water_quantity}ml】です。\n以下の内容から新しい設定を選択してください。',
+            actions = [
+                PostbackAction(label = '100ml', data = 'plant_1_setting_quantity_value', data = 100),
+                PostbackAction(label = '200ml', data = 'plant_1_setting_quantity_value', data = 200),
+                PostbackAction(label = '300ml', data = 'plant_1_setting_quantity_value', data = 300),
+                PostbackAction(label = '400ml', data = 'plant_1_setting_quantity_value', data = 400),
+                PostbackAction(label = 'キャンセル', data = 'cancel'),
+            ],
+        )
+        template_message = TemplateSendMessage(template = buttons_template)
+        line_bot_api.reply_message(event.reply_token, template_message)
+    elif text == 'plant_1_setting_quantity_value':
+        is_change = plant_water_server.updatePlant1Setting(plant_water_server.plant_1_day_of_interval, data)
+        if (is_change):
+            line_bot_api.reply_message(
+                event.reply_token, [
+                    TextSendMessage('設定を変更しました。'),
+                ]
+            )
+        else:
+            line_bot_api.reply_message(
+                event.reply_token, [
+                    TextSendMessage('設定を変更できませんでした。'),
+                ]
+            )
+    elif text == 'plant_2_setting':
+        buttons_template = ButtonsTemplate(
+            title = '「パキラの定期水やり設定」を行います。',
+            text = 'どの設定を変更しますか？',
+            actions = [
+                PostbackAction(label = '間隔', text = 'plant_2_setting_pace'),
+                PostbackAction(label = '水量', text = 'plant_2_setting_quantity'),
+                PostbackAction(label = 'キャンセル', text = 'cancel'),
+            ],
+        )
+        template_message = TemplateSendMessage(template = buttons_template)
+        line_bot_api.reply_message(event.reply_token, template_message)
+    elif text == 'plant_2_setting_pace':
+        buttons_template = ButtonsTemplate(
+            title = '「パキラの定期水やり設定-間隔」を行います。',
+            text = f'現在の設定は【{plant_water_server.plant_2_day_of_interval}日ごと】です。\n以下の内容から新しい設定を選択してください。',
+            actions = [
+                PostbackAction(label = '3日ごと', data = 'plant_2_setting_pace_value', data = 3),
+                PostbackAction(label = '5日ごと', data = 'plant_2_setting_pace_value', data = 5),
+                PostbackAction(label = '7日ごと', data = 'plant_2_setting_pace_value', data = 7),
+                PostbackAction(label = '14日ごと', data = 'plant_2_setting_pace_value', data = 14),
+                PostbackAction(label = 'キャンセル', data = 'cancel'),
+            ],
+        )
+        template_message = TemplateSendMessage(template = buttons_template)
+        line_bot_api.reply_message(event.reply_token, template_message)
+    elif text == 'plant_2_setting_pace_value':
+        is_change = plant_water_server.updatePlant2Setting(data, plant_water_server.plant_2_water_quantity)
+        if (is_change):
+            line_bot_api.reply_message(
+                event.reply_token, [
+                    TextSendMessage('設定を変更しました。'),
+                ]
+            )
+        else:
+            line_bot_api.reply_message(
+                event.reply_token, [
+                    TextSendMessage('設定を変更できませんでした。'),
+                ]
+            )
+    elif text == 'plant_2_setting_quantity':
+        buttons_template = ButtonsTemplate(
+            title = '「パキラの定期水やり設定-水量」を行います。',
+            text = f'現在の設定は【{plant_water_server.plant_2_water_quantity}ml】です。\n以下の内容から新しい設定を選択してください。',
+            actions = [
+                PostbackAction(label = '100ml', data = 'plant_2_setting_quantity_value', data = 100),
+                PostbackAction(label = '200ml', data = 'plant_2_setting_quantity_value', data = 200),
+                PostbackAction(label = '300ml', data = 'plant_2_setting_quantity_value', data = 300),
+                PostbackAction(label = '400ml', data = 'plant_2_setting_quantity_value', data = 400),
+                PostbackAction(label = 'キャンセル', data = 'cancel'),
+            ],
+        )
+        template_message = TemplateSendMessage(template = buttons_template)
+        line_bot_api.reply_message(event.reply_token, template_message)
+    elif text == 'plant_2_setting_quantity_value':
+        is_change = plant_water_server.updatePlant2Setting(plant_water_server.plant_2_day_of_interval, data)
+        if (is_change):
+            line_bot_api.reply_message(
+                event.reply_token, [
+                    TextSendMessage('設定を変更しました。'),
+                ]
+            )
+        else:
+            line_bot_api.reply_message(
+                event.reply_token, [
+                    TextSendMessage('設定を変更できませんでした。'),
+                ]
+            )
+    elif text == 'cancel':
+        line_bot_api.reply_message(
+            event.reply_token, [
+                TextSendMessage('キャンセルしました。またお声がけください。'),
+            ]
         )
 
 def main():

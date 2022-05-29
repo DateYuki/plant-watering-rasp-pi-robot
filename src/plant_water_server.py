@@ -41,18 +41,22 @@ class PlantWaterServer:
 
     def updatePlant1Setting(self, new_day_of_interval, new_plant_water_quantity):
         is_changed_setting = False
-        if (self.plant_1_day_of_interval != new_day_of_interval 
-        or self.plant_1_water_quantity != new_plant_water_quantity):
+        if (self.plant_1_day_of_interval != new_day_of_interval):
             self.plant_1_day_of_interval = new_day_of_interval
+            self.plant_1_day_count_since_last_watering = 1
+            is_changed_setting = True
+        elif (self.plant_1_water_quantity != new_plant_water_quantity):
             self.plant_1_water_quantity = new_plant_water_quantity
             is_changed_setting = True
         return is_changed_setting
 
     def updatePlant2Setting(self, new_day_of_interval, new_plant_water_quantity):
         is_changed_setting = False
-        if (self.plant_2_day_of_interval != new_day_of_interval 
-        or self.plant_2_water_quantity != new_plant_water_quantity):
+        if (self.plant_2_day_of_interval != new_day_of_interval):
             self.plant_2_day_of_interval = new_day_of_interval
+            self.plant_2_day_count_since_last_watering = 1
+            is_changed_setting = True
+        elif (self.plant_2_water_quantity != new_plant_water_quantity):
             self.plant_2_water_quantity = new_plant_water_quantity
             is_changed_setting = True
         return is_changed_setting
