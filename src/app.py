@@ -110,11 +110,13 @@ def handle_postback(event):
         template_message = TemplateSendMessage(alt_text = '「定期水やり設定」を行います。', template = buttons_template)
         line_bot_api.reply_message(event.reply_token, template_message)
     elif data == 'check_schedule':
+        datetime_str_next_plant_1 = plant_water_server.getDateTimeOfNextPlant1Watering()
+        datetime_str_next_plant_2 = plant_water_server.getDateTimeOfNextPlant2Watering()
         line_bot_api.reply_message(
             event.reply_token, [
                 TextSendMessage('次の定期水やりを確認しています・・・'),
-                TextSendMessage(f'次のエバーフレッシュへの水やりは【{plant_water_server.getDateTimeOfNextPlant1Watering()}】です。'),
-                TextSendMessage(f'次のパキラへの水やりは【{plant_water_server.getDateTimeOfNextPlant1Watering()}】です。'),
+                TextSendMessage(f'次のエバーフレッシュへの水やりは【{datetime_str_next_plant_1}】です。'),
+                TextSendMessage(f'次のパキラへの水やりは【{datetime_str_next_plant_2}】です。'),
             ]
         )
     elif data == 'plant_1_watering':
