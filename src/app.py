@@ -51,7 +51,7 @@ def message_text(event):
                 PostbackAction(label = 'キャンセル', text = 'cancel'),
             ],
         )
-        template_message = TemplateSendMessage(template = buttons_template)
+        template_message = TemplateSendMessage(alt_text = '「今すぐ水やり」を行います。', template = buttons_template)
         line_bot_api.reply_message(event.reply_token, template_message)
     elif (text.find('定期') != -1 or text.find('ていき') != -1) or (text.find('設定') != -1 or text.find('せってい') != -1):
         buttons_template = ButtonsTemplate(
@@ -64,7 +64,7 @@ def message_text(event):
                 PostbackAction(label = 'キャンセル', text = 'cancel'),
             ],
         )
-        template_message = TemplateSendMessage(template = buttons_template)
+        template_message = TemplateSendMessage(alt_text = '「定期水やり設定」を行います。', template = buttons_template)
         line_bot_api.reply_message(event.reply_token, template_message)
     else:
         line_bot_api.reply_message(
@@ -123,7 +123,7 @@ def handle_postback(event):
                 PostbackAction(label = 'キャンセル', text = 'cancel'),
             ],
         )
-        template_message = TemplateSendMessage(template = buttons_template)
+        template_message = TemplateSendMessage(alt_text = '「エバーフレッシュの定期水やり設定」を行います。', template = buttons_template)
         line_bot_api.reply_message(event.reply_token, template_message)
     elif text == 'plant_1_setting_pace':
         buttons_template = ButtonsTemplate(
@@ -137,7 +137,7 @@ def handle_postback(event):
                 PostbackAction(label = 'キャンセル', text = 'cancel'),
             ],
         )
-        template_message = TemplateSendMessage(template = buttons_template)
+        template_message = TemplateSendMessage(alt_text = '「エバーフレッシュの定期水やり設定-間隔」を行います。', template = buttons_template)
         line_bot_api.reply_message(event.reply_token, template_message)
     elif text == 'plant_1_setting_pace_value':
         is_change = plant_water_server.updatePlant1Setting(data, plant_water_server.plant_1_water_quantity)
@@ -165,7 +165,7 @@ def handle_postback(event):
                 PostbackAction(label = 'キャンセル', text = 'cancel'),
             ],
         )
-        template_message = TemplateSendMessage(template = buttons_template)
+        template_message = TemplateSendMessage(alt_text = '「エバーフレッシュの定期水やり設定-水量」を行います。', template = buttons_template)
         line_bot_api.reply_message(event.reply_token, template_message)
     elif text == 'plant_1_setting_quantity_value':
         is_change = plant_water_server.updatePlant1Setting(plant_water_server.plant_1_day_of_interval, data)
@@ -191,7 +191,7 @@ def handle_postback(event):
                 PostbackAction(label = 'キャンセル', text = 'cancel'),
             ],
         )
-        template_message = TemplateSendMessage(template = buttons_template)
+        template_message = TemplateSendMessage(alt_text = '「パキラの定期水やり設定」を行います。', template = buttons_template)
         line_bot_api.reply_message(event.reply_token, template_message)
     elif text == 'plant_2_setting_pace':
         buttons_template = ButtonsTemplate(
@@ -205,7 +205,7 @@ def handle_postback(event):
                 PostbackAction(label = 'キャンセル', text = 'cancel'),
             ],
         )
-        template_message = TemplateSendMessage(template = buttons_template)
+        template_message = TemplateSendMessage(alt_text = '「パキラの定期水やり設定-間隔」を行います。', template = buttons_template)
         line_bot_api.reply_message(event.reply_token, template_message)
     elif text == 'plant_2_setting_pace_value':
         is_change = plant_water_server.updatePlant2Setting(data, plant_water_server.plant_2_water_quantity)
@@ -233,7 +233,7 @@ def handle_postback(event):
                 PostbackAction(label = 'キャンセル', text = 'cancel'),
             ],
         )
-        template_message = TemplateSendMessage(template = buttons_template)
+        template_message = TemplateSendMessage(alt_text = '「パキラの定期水やり設定-水量」を行います。', template = buttons_template)
         line_bot_api.reply_message(event.reply_token, template_message)
     elif text == 'plant_2_setting_quantity_value':
         is_change = plant_water_server.updatePlant2Setting(plant_water_server.plant_2_day_of_interval, data)
