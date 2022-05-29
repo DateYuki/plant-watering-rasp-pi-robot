@@ -63,20 +63,20 @@ class PlantWaterServer:
     
     def getDateTimeOfNextPlant1Watering(self):
         now = dt.datetime.now()
-        nextDateTimeOfNextPlantWatering = ''
+        nextDateTimeOfNextPlantWatering = dt.datetime(now.year, now.month, now.day)
         if (now.hour < 10):
-            nextDateTimeOfNextPlantWatering = dt.datetime(now.year, now.month, now.day + self.plant_1_day_of_interval - self.plant_1_day_count_since_last_watering - 1)
+            nextDateTimeOfNextPlantWatering = nextDateTimeOfNextPlantWatering + dt.timedelta(days = self.plant_1_day_of_interval - self.plant_1_day_count_since_last_watering - 1)
         else:
-            nextDateTimeOfNextPlantWatering = dt.datetime(now.year, now.month, now.day + self.plant_1_day_of_interval - self.plant_1_day_count_since_last_watering)
+            nextDateTimeOfNextPlantWatering = nextDateTimeOfNextPlantWatering + dt.timedelta(days = self.plant_1_day_of_interval - self.plant_1_day_count_since_last_watering)
         return nextDateTimeOfNextPlantWatering.strftime('%m/%d')
     
     def getDateTimeOfNextPlant2Watering(self):
         now = dt.datetime.now()
-        nextDateTimeOfNextPlantWatering = ''
+        nextDateTimeOfNextPlantWatering = dt.datetime(now.year, now.month, now.day)
         if (now.hour < 10):
-            nextDateTimeOfNextPlantWatering = dt.datetime(now.year, now.month, now.day + self.plant_2_day_of_interval - self.plant_2_day_count_since_last_watering - 1)
+            nextDateTimeOfNextPlantWatering = nextDateTimeOfNextPlantWatering + dt.timedelta(days = self.plant_2_day_of_interval - self.plant_2_day_count_since_last_watering - 1)
         else:
-            nextDateTimeOfNextPlantWatering = dt.datetime(now.year, now.month, now.day + self.plant_2_day_of_interval - self.plant_2_day_count_since_last_watering)
+            nextDateTimeOfNextPlantWatering = nextDateTimeOfNextPlantWatering + dt.timedelta(days = self.plant_2_day_of_interval - self.plant_2_day_count_since_last_watering)
         return nextDateTimeOfNextPlantWatering.strftime('%m/%d')
     
     def plant1Watering(self):
