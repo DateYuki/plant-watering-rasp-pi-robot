@@ -1,10 +1,12 @@
 import os
 import sys
+import threading
 from linebot import(LineBotApi, WebhookHandler)
 from linebot.exceptions import(InvalidSignatureError)
 from linebot.models import(MessageEvent, TextMessage, TextSendMessage)
 from argparse import ArgumentParser
 from flask import Flask, request, abort
+from plant_water_server import PlantWaterServer
 
 channel_secret = os.getenv('LINE_CHANNEL_SECRET', None)
 channel_access_token = os.getenv('LINE_CHANNEL_ACCESS_TOKEN', None)
@@ -17,6 +19,8 @@ if channel_access_token is None:
 
 line_bot_api = LineBotApi(channel_access_token)
 handler = WebhookHandler(channel_secret)
+
+plant_water_server = PlantWaterServer()
 
 app = Flask(__name__)
 
@@ -37,30 +41,53 @@ def callback():
 def message_text(event):
     text = event.message.text
     
-    if text.find('エバーフォレスト') != -1:
-        
+    if text.find('エバーフレッシュ') != -1:
         line_bot_api.reply_message(
             event.reply_token,
             TextSendMessage(
-                'おっけー、エバーフォレストに水やりするで！\n\nほんでこれから7日ごとに水やりしとくわ。ペース変えたいなら教えてな。'
+                'エバーフレッシュに水やりをします。'
+            )
+        )
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(
+                '水やりをしています・・・'
+            )
+        )
+        plant_water_server.plant1Watering()
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(
+                'エバーフレッシュへの水やりが終わりました。'
             )
         )
         
     elif text.find('パキラ') != -1:
-        
         line_bot_api.reply_message(
             event.reply_token,
             TextSendMessage(
-                'おっけー、パキラに水やりするで！\n\nほんでこれから10日ごとに水やりしとくわ。ペース変えたいなら教えてな。'
+                'パキラに水やりをします。\n\nこれから10日ごとに水やりします。'
+            )
+        )
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(
+                '水やりをしています・・・'
+            )
+        )
+        plant_water_server.plant2Watering()
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(
+                'パキラへの水やりが終わりました。'
             )
         )
         
     elif text.find('水') != -1 or text.find('みず') != -1:
-        
         line_bot_api.reply_message(
             event.reply_token,
             TextSendMessage(
-                'どの子に水やりしたいん？\n  「エバーフォレスト」\n  「パキラ」'
+                'どちらの植物に水やりしますか？\n  「エバーフレッシュ」\n  「パキラ」'
             )
         )
         
@@ -68,14 +95,20 @@ def message_text(event):
         line_bot_api.reply_message(
             event.reply_token,
             TextSendMessage(
-                '''え、なんて？？ 水やりしたいん？'''
+                '''よくわかりません。\n「水やり」と「設定」を行うことができます。'''
             )
         )
 
-if __name__ == "__main__":
+def main():
     arg_parser = ArgumentParser(usage = 'Usage: python ' + __file__ + '[--port][--help]')
     arg_parser.add_argument('-p', '--port', default = 8000, help = 'port')
     arg_parser.add_argument('-d', '--debug', default = False, help = 'debug')
     options = arg_parser.parse_args()
-    
     app.run(debug = options.debug, port = options.port)
+
+if __name__ == "__main__":
+    plant_water_server.rasp_pi_init()
+    thread_1 = threading.Thread(target = main)
+    thread_2 = threading.Thread(target = plant_water_server.regularWatering)
+    thread_1.start()
+    thread_2.start()
