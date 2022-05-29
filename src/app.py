@@ -138,7 +138,7 @@ def handle_postback(event):
         template_message = TemplateSendMessage(alt_text = '「エバーフレッシュの定期水やり設定-間隔」を行います。', template = buttons_template)
         line_bot_api.reply_message(event.reply_token, template_message)
     elif data.find('plant_1_setting_pace_value') != -1:
-        update_value = int(data[data.indexOf('-'):])
+        update_value = int(data[data.find('-') + 1:])
         is_change = plant_water_server.updatePlant1Setting(update_value, plant_water_server.plant_1_water_quantity)
         if (is_change):
             line_bot_api.reply_message(
@@ -166,7 +166,7 @@ def handle_postback(event):
         template_message = TemplateSendMessage(alt_text = '「エバーフレッシュの定期水やり設定-水量」を行います。', template = buttons_template)
         line_bot_api.reply_message(event.reply_token, template_message)
     elif data.find('plant_1_setting_quantity_value') != -1:
-        update_value = int(data[data.indexOf('-'):])
+        update_value = int(data[data.find('-') + 1:])
         is_change = plant_water_server.updatePlant1Setting(plant_water_server.plant_1_day_of_interval, update_value)
         if (is_change):
             line_bot_api.reply_message(
@@ -206,7 +206,7 @@ def handle_postback(event):
         template_message = TemplateSendMessage(alt_text = '「パキラの定期水やり設定-間隔」を行います。', template = buttons_template)
         line_bot_api.reply_message(event.reply_token, template_message)
     elif data.find('plant_2_setting_pace_value') != -1:
-        update_value = int(data[data.indexOf('-'):])
+        update_value = int(data[data.find('-') + 1:])
         is_change = plant_water_server.updatePlant2Setting(update_value, plant_water_server.plant_2_water_quantity)
         if (is_change):
             line_bot_api.reply_message(
@@ -234,7 +234,7 @@ def handle_postback(event):
         template_message = TemplateSendMessage(alt_text = '「パキラの定期水やり設定-水量」を行います。', template = buttons_template)
         line_bot_api.reply_message(event.reply_token, template_message)
     elif data.find('plant_2_setting_quantity_value') != -1:
-        update_value = int(data[data.indexOf('-'):])
+        update_value = int(data[data.find('-') + 1:])
         is_change = plant_water_server.updatePlant2Setting(plant_water_server.plant_2_day_of_interval, update_value)
         if (is_change):
             line_bot_api.reply_message(
