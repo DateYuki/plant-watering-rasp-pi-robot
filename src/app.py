@@ -41,7 +41,7 @@ def callback():
 def message_text(event):
     text = event.message.text
     user_id = event.source.user_id
-    if (text.find('今') != -1 or text.find('いま') != -1) or (text.find('水') != -1 or text.find('みず') != -1):
+    if (text.find('今') != -1 or text.find('いま') != -1) and (text.find('水') != -1 or text.find('みず') != -1):
         buttons_template = ButtonsTemplate(
             title = '「今すぐ水やり」を行います。',
             text = 'どちらの植物に水やりしますか？',
@@ -66,6 +66,16 @@ def message_text(event):
         )
         template_message = TemplateSendMessage(alt_text = '「定期水やり設定」を行います。', template = buttons_template)
         line_bot_api.reply_message(event.reply_token, template_message)
+    elif (text.find('次') != -1 or text.find('つぎ') != -1) and (text.find('水') != -1 or text.find('みず') != -1):
+        datetime_str_next_plant_1 = plant_water_server.getDateTimeOfNextPlant1Watering()
+        datetime_str_next_plant_2 = plant_water_server.getDateTimeOfNextPlant2Watering()
+        line_bot_api.reply_message(
+            event.reply_token, [
+                TextSendMessage('次の定期水やりを確認しています・・・'),
+                TextSendMessage(f'次のエバーフレッシュへの水やりは【{datetime_str_next_plant_1}】です。'),
+                TextSendMessage(f'次のパキラへの水やりは【{datetime_str_next_plant_2}】です。'),
+            ]
+        )
     else:
         buttons_template = ButtonsTemplate(
             title = 'よく分かりません。',
