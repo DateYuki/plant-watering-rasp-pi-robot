@@ -162,8 +162,8 @@ def handle_postback(event):
         line_bot_api.reply_message(
             event.reply_token, [
                 TextSendMessage('現在の設定を確認しています・・・'),
-                TextSendMessage(f'エバーフレッシュへの定期水やり設定は【{plant_water_server.plant_1_day_of_interval}日ごと】に【{plant_water_server.plant_1_water_quantity}ml】です'),
-                TextSendMessage(f'パキラへの定期水やり設定は【{plant_water_server.plant_2_day_of_interval}日ごと】に【{plant_water_server.plant_2_water_quantity}ml】です'),
+                TextSendMessage(f'エバーフレッシュへの定期水やり設定は【{plant_water_server.plant_1_day_of_interval}日ごと】に【{plant_water_server.plant_1_water_quantity}ml】です。'),
+                TextSendMessage(f'パキラへの定期水やり設定は【{plant_water_server.plant_2_day_of_interval}日ごと】に【{plant_water_server.plant_2_water_quantity}ml】です。'),
             ]
         )
     elif data == 'plant_1_setting':
