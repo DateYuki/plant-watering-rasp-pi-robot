@@ -1,6 +1,8 @@
 import os
 import sys
 import threading
+import time
+import datetime as dt
 from linebot import(LineBotApi, WebhookHandler)
 from linebot.exceptions import(InvalidSignatureError)
 from linebot.models import(MessageEvent, TextMessage, TextSendMessage,
@@ -139,7 +141,7 @@ def handle_postback(event):
         plant_water_server.plant1Watering()
         line_bot_api.push_message(
             user_id, [
-                TextSendMessage(f'水やりが終了しました。次の水やりは{plant_water_server.plant_1_day_of_interval}日後です。'),
+                TextSendMessage(f'水やりが終了しました。次の水やりは【{datetime_str_next_plant_1}】日後です。'),
             ]
         )
     elif data == 'plant_2_watering':
@@ -150,9 +152,10 @@ def handle_postback(event):
             ]
         )
         plant_water_server.plant2Watering()
+        datetime_str_next_plant_2 = plant_water_server.getDateTimeOfNextPlant2Watering()
         line_bot_api.push_message(
             user_id, [
-                TextSendMessage(f'水やりが終了しました。次の水やりは{plant_water_server.plant_2_day_of_interval}日後です。'),
+                TextSendMessage(f'水やりが終了しました。次の水やりは【{datetime_str_next_plant_2}】です。'),
             ]
         )
     elif data == 'check_setting':
@@ -313,9 +316,46 @@ def main():
     options = arg_parser.parse_args()
     app.run(debug = options.debug, port = options.port)
 
+def regularWatering():
+        while True:
+            #-------- Plant-1 --------
+            if plant_water_server.plant_1_day_of_interval <= plant_water_server.plant_1_day_count_since_last_watering:
+                plant_water_server.plant1Watering()
+                datetime_str_next_plant_1 = plant_water_server.getDateTimeOfNextPlant1Watering()
+                if (user_id != ''):
+                    line_bot_api.push_message(
+                        user_id, [
+                            TextSendMessage(f'エバーフレッシュへの定期水やりを行いました。次の水やりは【{datetime_str_next_plant_1}】です。'),
+                        ]
+                    )
+            else:
+                plant_water_server.incrementPlant1DayCount()
+            #-------- Plant-2 --------
+            if plant_water_server.plant_2_day_of_interval <= plant_water_server.plant_2_day_count_since_last_watering:
+                plant_water_server.plant2Watering()
+                datetime_str_next_plant_2 = plant_water_server.getDateTimeOfNextPlant2Watering()
+                if (user_id != ''):
+                    line_bot_api.push_message(
+                        user_id, [
+                            TextSendMessage(f'パキラへの定期水やりを行いました。次の水やりは【{datetime_str_next_plant_2}】です。'),
+                        ]
+                    )
+            else:
+                plant_water_server.incrementPlant2DayCount()
+            #-------- wait to next day at 10:00 AM --------
+            now = dt.datetime.now()
+            nextDateTime = dt.datetime(now.year, now.month, now.day, 10)
+            nextDateTime = nextDateTime + dt.timedelta(days = 1)
+            waitDateTime = nextDateTime - now
+            waitSeconds = waitDateTime.total_seconds()
+            time.sleep(waitSeconds)
+
 if __name__ == "__main__":
-    plant_water_server.rasp_pi_init()
-    thread_1 = threading.Thread(target = main)
-    thread_2 = threading.Thread(target = plant_water_server.regularWatering)
-    thread_1.start()
-    thread_2.start()
+    try:
+        plant_water_server.rasp_pi_init()
+        thread_1 = threading.Thread(target = main)
+        thread_2 = threading.Thread(target = regularWatering)
+        thread_1.start()
+        thread_2.start()
+    finally:
+        plant_water_server.rasp_pi_dispose()

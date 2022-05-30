@@ -79,6 +79,12 @@ class PlantWaterServer:
             nextDateTimeOfNextPlantWatering = nextDateTimeOfNextPlantWatering + dt.timedelta(days = self.plant_2_day_of_interval - self.plant_2_day_count_since_last_watering + 1)
         return nextDateTimeOfNextPlantWatering.strftime('%m/%d')
     
+    def incrementPlant1DayCount(self):
+        self.plant_1_day_count_since_last_watering += 1
+
+    def incrementPlant2DayCount(self):
+        self.plant_2_day_count_since_last_watering += 1
+    
     def plant1Watering(self):
         flow_time = 0 #[s]
         water_quantity = 0 #[ml]
@@ -122,26 +128,3 @@ class PlantWaterServer:
         GPIO.output(self.PLANT_2_VALVE_RELAY_PIN, False)
         GPIO.output(self.PUMP_RELAY_PIN, False)
         self.plant_2_day_count_since_last_watering = 1
-
-    def regularWatering(self):
-        try:
-            while True:
-                #-------- Plant-1 --------
-                if self.plant_1_day_of_interval <= self.plant_1_day_count_since_last_watering:
-                    self.plant1Watering()
-                else:
-                    self.plant_1_day_count_since_last_watering += 1
-                #-------- Plant-2 --------
-                if self.plant_2_day_of_interval <= self.plant_2_day_count_since_last_watering:
-                    self.plant2Watering()
-                else:
-                    self.plant_2_day_count_since_last_watering += 1
-                #-------- wait to next day at 10:00 AM --------
-                now = dt.datetime.now()
-                nextDateTime = dt.datetime(now.year, now.month, now.day, 10)
-                nextDateTime = nextDateTime + dt.timedelta(days = 1)
-                waitDateTime = nextDateTime - now
-                waitSeconds = waitDateTime.total_seconds()
-                time.sleep(waitSeconds)
-        finally:
-            self.rasp_pi_dispose()
