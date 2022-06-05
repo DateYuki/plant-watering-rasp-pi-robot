@@ -21,11 +21,11 @@ class PlantWaterServer:
     MAX_VOLTAGE   = 5.0  #[v](flow-sensor's spec)
     MAX_FLOW_RATE = 100  #[ml/s] (flow-sensor's spec)
 
-    plant_1_day_of_interval = 7    #[day]
-    plant_1_water_quantity  = 200  #[ml]
+    plant_1_day_of_interval = 10    #[day]
+    plant_1_water_quantity  = 100  #[ml]
     
     plant_2_day_of_interval = 10   #[day]
-    plant_2_water_quantity  = 400  #[ml]
+    plant_2_water_quantity  = 100  #[ml]
 
     plant_1_day_count_since_last_watering = 0 #[day]
     plant_2_day_count_since_last_watering = 0 #[day]
@@ -108,14 +108,14 @@ class PlantWaterServer:
             GPIO.output(self.PLANT_1_VALVE_RELAY_PIN, False)
             GPIO.output(self.PUMP_RELAY_PIN, False)
             self.plant_1_day_count_since_last_watering = 1
-        finally:
+        except Exception:
             self.rasp_pi_dispose
+            self.rasp_pi_init
 
         
     
     def plant2Watering(self):
         try:
-            self.rasp_pi_init
             flow_time = 0 #[s]
             water_quantity = 0 #[ml]
             raw_flow_rate_values_for_adition_average = [0, 0, 0, 0, 0] #[ml/s]
@@ -136,5 +136,6 @@ class PlantWaterServer:
             GPIO.output(self.PLANT_2_VALVE_RELAY_PIN, False)
             GPIO.output(self.PUMP_RELAY_PIN, False)
             self.plant_2_day_count_since_last_watering = 1
-        finally:
+        except Exception:
             self.rasp_pi_dispose
+            self.rasp_pi_init

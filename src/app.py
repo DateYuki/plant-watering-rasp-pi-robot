@@ -42,7 +42,9 @@ def callback():
 @handler.add(MessageEvent, message=TextMessage)
 def message_text(event):
     text = event.message.text
-    user_id = event.source.user_id
+    global user_id
+    if (user_id != event.source.user_id):
+        user_id = event.source.user_id
     if (text.find('今') != -1 or text.find('いま') != -1) and (text.find('水') != -1 or text.find('みず') != -1):
         buttons_template = ButtonsTemplate(
             title = '「今すぐ水やり」を行います。',
@@ -95,7 +97,9 @@ def message_text(event):
 @handler.add(PostbackEvent)
 def handle_postback(event):
     data = event.postback.data
-    user_id = event.source.user_id
+    global user_id
+    if (user_id != event.source.user_id):
+        user_id = event.source.user_id
     if data == 'watering':
         buttons_template = ButtonsTemplate(
             title = '「今すぐ水やり」を行います。',
@@ -317,45 +321,43 @@ def main():
     app.run(debug = options.debug, port = options.port)
 
 def regularWatering():
-        while True:
-            #-------- Plant-1 --------
-            if plant_water_server.plant_1_day_of_interval <= plant_water_server.plant_1_day_count_since_last_watering:
-                plant_water_server.plant1Watering()
+    global user_id
+    while True:
+        #-------- Plant-1 --------
+        if plant_water_server.plant_1_day_of_interval <= plant_water_server.plant_1_day_count_since_last_watering:
+            plant_water_server.plant1Watering()
+            if (user_id != ''):
                 datetime_str_next_plant_1 = plant_water_server.getDateTimeOfNextPlant1Watering()
-                if (user_id != ''):
-                    line_bot_api.push_message(
-                        user_id, [
-                            TextSendMessage(f'エバーフレッシュへの定期水やりを行いました。次の水やりは【{datetime_str_next_plant_1}】です。'),
-                        ]
-                    )
-            else:
-                plant_water_server.incrementPlant1DayCount()
-            #-------- Plant-2 --------
-            if plant_water_server.plant_2_day_of_interval <= plant_water_server.plant_2_day_count_since_last_watering:
-                plant_water_server.plant2Watering()
+                line_bot_api.push_message(
+                    user_id, [
+                        TextSendMessage(f'エバーフレッシュへの定期水やりを行いました。次の水やりは【{datetime_str_next_plant_1}】です。'),
+                    ]
+                )
+        else:
+            plant_water_server.incrementPlant1DayCount()
+        #-------- Plant-2 --------
+        if plant_water_server.plant_2_day_of_interval <= plant_water_server.plant_2_day_count_since_last_watering:
+            plant_water_server.plant2Watering()
+            if (user_id != ''):
                 datetime_str_next_plant_2 = plant_water_server.getDateTimeOfNextPlant2Watering()
-                if (user_id != ''):
-                    line_bot_api.push_message(
-                        user_id, [
-                            TextSendMessage(f'パキラへの定期水やりを行いました。次の水やりは【{datetime_str_next_plant_2}】です。'),
-                        ]
-                    )
-            else:
-                plant_water_server.incrementPlant2DayCount()
-            #-------- wait to next day at 10:00 AM --------
-            now = dt.datetime.now()
-            nextDateTime = dt.datetime(now.year, now.month, now.day, 10)
-            nextDateTime = nextDateTime + dt.timedelta(days = 1)
-            waitDateTime = nextDateTime - now
-            waitSeconds = waitDateTime.total_seconds()
-            time.sleep(waitSeconds)
+                line_bot_api.push_message(
+                    user_id, [
+                        TextSendMessage(f'パキラへの定期水やりを行いました。次の水やりは【{datetime_str_next_plant_2}】です。'),
+                    ]
+                )
+        else:
+            plant_water_server.incrementPlant2DayCount()
+        #-------- wait to next day at 10:00 AM --------
+        now = dt.datetime.now()
+        nextDateTime = dt.datetime(now.year, now.month, now.day, 10)
+        nextDateTime = nextDateTime + dt.timedelta(days = 1)
+        waitDateTime = nextDateTime - now
+        waitSeconds = waitDateTime.total_seconds()
+        time.sleep(waitSeconds)
 
 if __name__ == "__main__":
-    try:
-        plant_water_server.rasp_pi_init()
-        thread_1 = threading.Thread(target = main)
-        thread_2 = threading.Thread(target = regularWatering)
-        thread_1.start()
-        thread_2.start()
-    finally:
-        plant_water_server.rasp_pi_dispose()
+    plant_water_server.rasp_pi_init()
+    thread_1 = threading.Thread(target = main)
+    thread_2 = threading.Thread(target = regularWatering)
+    thread_1.start()
+    thread_2.start()
