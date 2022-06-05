@@ -143,6 +143,7 @@ def handle_postback(event):
             ]
         )
         plant_water_server.plant1Watering()
+        datetime_str_next_plant_1 = plant_water_server.getDateTimeOfNextPlant1Watering()
         line_bot_api.push_message(
             user_id, [
                 TextSendMessage(f'水やりが終了しました。次の水やりは【{datetime_str_next_plant_1}】日後です。'),
