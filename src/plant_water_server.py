@@ -111,8 +111,6 @@ class PlantWaterServer:
         except Exception:
             self.rasp_pi_dispose
             self.rasp_pi_init
-
-        
     
     def plant2Watering(self):
         try:
