@@ -86,45 +86,55 @@ class PlantWaterServer:
         self.plant_2_day_count_since_last_watering += 1
     
     def plant1Watering(self):
-        flow_time = 0 #[s]
-        water_quantity = 0 #[ml]
-        raw_flow_rate_values_for_adition_average = [0, 0, 0, 0, 0] #[ml/s]
-        GPIO.output(self.PLANT_1_VALVE_RELAY_PIN, True)
-        GPIO.output(self.PUMP_RELAY_PIN, True)
-        while water_quantity < self.plant_1_water_quantity:
-            flow_time += self.SAMPLINGTIME
-            voltage = self.chan.voltage
-            raw_flow_rate = voltage / self.MAX_VOLTAGE * self.MAX_FLOW_RATE
-            del raw_flow_rate_values_for_adition_average[0]
-            raw_flow_rate_values_for_adition_average += [raw_flow_rate]
-            sum_flow_rate = 0
-            for flowRateValue in raw_flow_rate_values_for_adition_average:
-                sum_flow_rate += flowRateValue
-            ave_flow_rate = sum_flow_rate / len(raw_flow_rate_values_for_adition_average)
-            water_quantity += ave_flow_rate * self.SAMPLINGTIME
-            time.sleep(self.SAMPLINGTIME)
-        GPIO.output(self.PLANT_1_VALVE_RELAY_PIN, False)
-        GPIO.output(self.PUMP_RELAY_PIN, False)
-        self.plant_1_day_count_since_last_watering = 1
+        try:
+            self.rasp_pi_init
+            flow_time = 0 #[s]
+            water_quantity = 0 #[ml]
+            raw_flow_rate_values_for_adition_average = [0, 0, 0, 0, 0] #[ml/s]
+            GPIO.output(self.PLANT_1_VALVE_RELAY_PIN, True)
+            GPIO.output(self.PUMP_RELAY_PIN, True)
+            while water_quantity < self.plant_1_water_quantity:
+                flow_time += self.SAMPLINGTIME
+                voltage = self.chan.voltage
+                raw_flow_rate = voltage / self.MAX_VOLTAGE * self.MAX_FLOW_RATE
+                del raw_flow_rate_values_for_adition_average[0]
+                raw_flow_rate_values_for_adition_average += [raw_flow_rate]
+                sum_flow_rate = 0
+                for flowRateValue in raw_flow_rate_values_for_adition_average:
+                    sum_flow_rate += flowRateValue
+                ave_flow_rate = sum_flow_rate / len(raw_flow_rate_values_for_adition_average)
+                water_quantity += ave_flow_rate * self.SAMPLINGTIME
+                time.sleep(self.SAMPLINGTIME)
+            GPIO.output(self.PLANT_1_VALVE_RELAY_PIN, False)
+            GPIO.output(self.PUMP_RELAY_PIN, False)
+            self.plant_1_day_count_since_last_watering = 1
+        finally:
+            self.rasp_pi_dispose
+
+        
     
     def plant2Watering(self):
-        flow_time = 0 #[s]
-        water_quantity = 0 #[ml]
-        raw_flow_rate_values_for_adition_average = [0, 0, 0, 0, 0] #[ml/s]
-        GPIO.output(self.PLANT_2_VALVE_RELAY_PIN, True)
-        GPIO.output(self.PUMP_RELAY_PIN, True)
-        while water_quantity < self.plant_2_water_quantity:
-            flow_time += self.SAMPLINGTIME
-            voltage = self.chan.voltage
-            raw_flow_rate = voltage / self.MAX_VOLTAGE * self.MAX_FLOW_RATE
-            del raw_flow_rate_values_for_adition_average[0]
-            raw_flow_rate_values_for_adition_average += [raw_flow_rate]
-            sum_flow_rate = 0
-            for flowRateValue in raw_flow_rate_values_for_adition_average:
-                sum_flow_rate += flowRateValue
-            ave_flow_rate = sum_flow_rate / len(raw_flow_rate_values_for_adition_average)
-            water_quantity += ave_flow_rate * self.SAMPLINGTIME
-            time.sleep(self.SAMPLINGTIME)
-        GPIO.output(self.PLANT_2_VALVE_RELAY_PIN, False)
-        GPIO.output(self.PUMP_RELAY_PIN, False)
-        self.plant_2_day_count_since_last_watering = 1
+        try:
+            self.rasp_pi_init
+            flow_time = 0 #[s]
+            water_quantity = 0 #[ml]
+            raw_flow_rate_values_for_adition_average = [0, 0, 0, 0, 0] #[ml/s]
+            GPIO.output(self.PLANT_2_VALVE_RELAY_PIN, True)
+            GPIO.output(self.PUMP_RELAY_PIN, True)
+            while water_quantity < self.plant_2_water_quantity:
+                flow_time += self.SAMPLINGTIME
+                voltage = self.chan.voltage
+                raw_flow_rate = voltage / self.MAX_VOLTAGE * self.MAX_FLOW_RATE
+                del raw_flow_rate_values_for_adition_average[0]
+                raw_flow_rate_values_for_adition_average += [raw_flow_rate]
+                sum_flow_rate = 0
+                for flowRateValue in raw_flow_rate_values_for_adition_average:
+                    sum_flow_rate += flowRateValue
+                ave_flow_rate = sum_flow_rate / len(raw_flow_rate_values_for_adition_average)
+                water_quantity += ave_flow_rate * self.SAMPLINGTIME
+                time.sleep(self.SAMPLINGTIME)
+            GPIO.output(self.PLANT_2_VALVE_RELAY_PIN, False)
+            GPIO.output(self.PUMP_RELAY_PIN, False)
+            self.plant_2_day_count_since_last_watering = 1
+        finally:
+            self.rasp_pi_dispose
